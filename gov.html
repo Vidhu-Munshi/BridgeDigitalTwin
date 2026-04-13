@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Government Bridge Monitoring — Classified Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#030710;
+  --bg2:#07101e;
+  --bg3:#0c1828;
+  --surface:#0f1f38;
+  --surface2:#162540;
+  --edge:rgba(255,255,255,.07);
+  --edge2:rgba(255,255,255,.12);
+  --text:#d8e8ff;
+  --text2:#7090b0;
+  --text3:#3a5878;
+  --acc:#2a7fff;
+  --acc-glow:rgba(42,127,255,.25);
+  --good:#00e87a;
+  --good-bg:rgba(0,232,122,.07);
+  --good-border:rgba(0,232,122,.25);
+  --warn:#ffaa00;
+  --warn-bg:rgba(255,170,0,.07);
+  --warn-border:rgba(255,170,0,.25);
+  --danger:#ff3d3d;
+  --danger-bg:rgba(255,61,61,.07);
+  --danger-border:rgba(255,61,61,.25);
+  --ext:#bf00ff;
+  --ext-bg:rgba(191,0,255,.07);
+  --ext-border:rgba(191,0,255,.25);
+  --shadow:0 8px 40px rgba(0,0,0,.5);
+  --header-bg:rgba(3,7,16,.92);
+}
+:root[data-theme="light"]{
+  --bg:#f0f4fc;
+  --bg2:#e4eaf8;
+  --bg3:#d8e2f4;
+  --surface:#ffffff;
+  --surface2:#f8faff;
+  --edge:rgba(0,0,0,.08);
+  --edge2:rgba(0,0,0,.14);
+  --text:#0a1a30;
+  --text2:#4a6080;
+  --text3:#8aA0b8;
+  --acc:#1a60e0;
+  --acc-glow:rgba(26,96,224,.15);
+  --good:#00a855;
+  --good-bg:rgba(0,168,85,.06);
+  --good-border:rgba(0,168,85,.2);
+  --warn:#d08000;
+  --warn-bg:rgba(208,128,0,.06);
+  --warn-border:rgba(208,128,0,.2);
+  --danger:#d42020;
+  --danger-bg:rgba(212,32,32,.06);
+  --danger-border:rgba(212,32,32,.2);
+  --ext:#8800cc;
+  --ext-bg:rgba(136,0,204,.06);
+  --ext-border:rgba(136,0,204,.2);
+  --shadow:0 4px 24px rgba(0,0,0,.1);
+  --header-bg:rgba(240,244,252,.95);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;min-height:100vh;
+  transition:background .3s,color .3s;
+}
+
+/* ── GRAIN TEXTURE ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--header-bg);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--edge2);
+  padding:14px 32px;
+  display:flex;align-items:center;gap:20px;
+}
+.h-emblem{
+  width:44px;height:44px;border-radius:8px;
+  background:linear-gradient(135deg,var(--acc),#0040cc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;box-shadow:0 0 20px var(--acc-glow);
+  flex-shrink:0;
+}
+.h-title{font-size:1rem;font-weight:800;letter-spacing:.08em;color:var(--text);}
+.h-sub{font-size:.58rem;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.12em;margin-top:2px;}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.live-dot{
+  display:flex;align-items:center;gap:7px;
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  color:var(--good);letter-spacing:.1em;
+}
+.live-dot::before{
+  content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--good);box-shadow:0 0 8px var(--good);
+  animation:blink 1.4s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ── THEME TOGGLE ── */
+.theme-btn{
+  background:var(--surface);border:1px solid var(--edge2);
+  border-radius:20px;padding:6px 14px;cursor:pointer;
+  font-family:'DM Mono',monospace;font-size:.68rem;
+  color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.theme-btn:hover{border-color:var(--acc);color:var(--acc);}
+
+/* ── WRAP ── */
+.wrap{max-width:1440px;margin:0 auto;padding:28px 32px;}
+
+/* ── CLASSIFIED BADGE ── */
+.classified{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--danger-bg);border:1px solid var(--danger-border);
+  color:var(--danger);border-radius:4px;padding:5px 14px;
+  font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.15em;
+  margin-bottom:24px;
+}
+.classified::before{content:'⬛';font-size:.7rem;}
+
+/* ── SUMMARY STATS ── */
+.stat-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;
+}
+.stat-card{
+  background:var(--surface);border:1px solid var(--edge);border-radius:12px;
+  padding:18px 22px;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--card-top);
+}
+.stat-card.total{--card-top:linear-gradient(90deg,var(--acc),transparent);}
+.stat-card.good-s{--card-top:linear-gradient(90deg,var(--good),transparent);}
+.stat-card.warn-s{--card-top:linear-gradient(90deg,var(--warn),transparent);}
+.stat-card.crit-s{--card-top:linear-gradient(90deg,var(--danger),transparent);}
+.stat-num{font-size:2.4rem;font-weight:800;line-height:1;font-family:'DM Mono',monospace;}
+.stat-label{font-size:.6rem;letter-spacing:.15em;color:var(--text3);margin-top:6px;text-transform:uppercase;}
+.stat-card.total .stat-num{color:var(--acc);}
+.stat-card.good-s .stat-num{color:var(--good);}
+.stat-card.warn-s .stat-num{color:var(--warn);}
+.stat-card.crit-s .stat-num{color:var(--danger);}
+
+/* ── FILTER BAR ── */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;
+}
+.filter-label{font-size:.6rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;}
+.filter-btn{
+  background:var(--surface);border:1px solid var(--edge);
+  border-radius:6px;padding:6px 16px;cursor:pointer;
+  font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text2);
+  transition:all .15s;
+}
+.filter-btn:hover,.filter-btn.active{
+  border-color:var(--acc);color:var(--acc);background:var(--acc-glow);
+}
+.search-box{
+  margin-left:auto;background:var(--surface);border:1px solid var(--edge);
+  border-radius:6px;padding:7px 14px;color:var(--text);font-family:'DM Mono',monospace;
+  font-size:.72rem;outline:none;width:180px;transition:border-color .2s;
+}
+.search-box:focus{border-color:var(--acc);}
+.search-box::placeholder{color:var(--text3);}
+
+/* ── GRID ── */
+.bridge-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:16px;
+}
+
+/* ── BRIDGE CARD ── */
+.b-card{
+  background:var(--surface);border:1px solid var(--edge);border-radius:14px;
+  overflow:hidden;transition:all .25s;cursor:default;
+  animation:fadeUp .4s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.b-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--edge2);}
+
+.b-header{
+  display:flex;align-items:center;gap:12px;padding:16px 18px 14px;
+  border-bottom:1px solid var(--edge);
+}
+.b-num{
+  font-size:.65rem;font-family:'DM Mono',monospace;
+  color:var(--text3);letter-spacing:.1em;
+}
+.b-name{font-size:1rem;font-weight:700;color:var(--text);}
+.b-status-pill{
+  margin-left:auto;padding:4px 12px;border-radius:20px;
+  font-family:'DM Mono',monospace;font-size:.6rem;font-weight:500;
+  letter-spacing:.1em;
+}
+.pill-GOOD     {background:var(--good-bg);color:var(--good);border:1px solid var(--good-border);}
+.pill-EARTHQUAKE{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
+.pill-FIRE     {background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
+.pill-EXTREME  {background:var(--ext-bg);color:var(--ext);border:1px solid var(--ext-border);}
+
+/* SHI gauge */
+.b-gauge{padding:14px 18px;border-bottom:1px solid var(--edge);}
+.g-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.g-label{font-size:.58rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;}
+.g-val{font-size:1.4rem;font-weight:700;font-family:'DM Mono',monospace;}
+.g-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.g-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+
+/* State breakdown mini */
+.b-breakdown{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--edge);}
+.bd-cell{padding:10px 6px;text-align:center;border-right:1px solid var(--edge);}
+.bd-cell:last-child{border-right:none;}
+.bd-count{font-size:1.1rem;font-weight:700;font-family:'DM Mono',monospace;}
+.bd-lbl{font-size:.52rem;letter-spacing:.08em;color:var(--text3);margin-top:3px;text-transform:uppercase;}
+
+/* Session log — collapsible */
+.b-log-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;cursor:pointer;user-select:none;
+  font-size:.6rem;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;
+  transition:background .15s;
+}
+.b-log-toggle:hover{background:var(--surface2);}
+.toggle-icon{transition:transform .2s;font-size:.7rem;}
+.b-log{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.b-log.open{max-height:400px;}
+.b-log table{width:100%;border-collapse:collapse;font-size:.7rem;font-family:'DM Mono',monospace;}
+.b-log thead th{
+  padding:6px 10px;text-align:left;
+  font-size:.56rem;letter-spacing:.1em;color:var(--text3);
+  border-bottom:1px solid var(--edge);background:var(--surface2);
+}
+.b-log tbody tr{border-bottom:1px solid var(--edge);transition:background .1s;}
+.b-log tbody tr:hover{background:var(--surface2);}
+.b-log tbody td{padding:6px 10px;color:var(--text2);}
+.b-log tbody tr:last-child{border-bottom:none;}
+
+/* State colors */
+.c-GOOD      {color:var(--good);}
+.c-EARTHQUAKE{color:var(--warn);}
+.c-FIRE      {color:var(--danger);}
+.c-EXTREME   {color:var(--ext);}
+
+/* ── ALERT BANNER ── */
+.alert-banner{
+  display:none;align-items:center;gap:12px;
+  background:var(--danger-bg);border:1px solid var(--danger-border);
+  border-radius:10px;padding:14px 20px;margin-bottom:20px;
+  animation:pulse-border 2s infinite;
+}
+.alert-banner.show{display:flex;}
+@keyframes pulse-border{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,61,61,0);}
+  50%{box-shadow:0 0 0 6px rgba(255,61,61,.08);}
+}
+.ab-icon{font-size:1.4rem;}
+.ab-text{font-size:.82rem;color:var(--danger);font-weight:700;}
+.ab-sub{font-size:.68rem;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--edge);padding:18px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text3);
+  letter-spacing:.08em;margin-top:32px;
+}
+.footer-seal{display:flex;align-items:center;gap:8px;}
+
+/* ── SORT ── */
+.sort-bar{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.sort-btn{
+  background:none;border:1px solid var(--edge);border-radius:4px;
+  padding:4px 10px;cursor:pointer;font-family:'DM Mono',monospace;
+  font-size:.62rem;color:var(--text3);transition:all .15s;
+}
+.sort-btn:hover,.sort-btn.active{color:var(--acc);border-color:var(--acc);}
+
+/* Responsive */
+@media(max-width:768px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .wrap{padding:16px;}
+  header{padding:10px 16px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-emblem">🏛</div>
+  <div>
+    <div class="h-title">NATIONAL INFRASTRUCTURE SURVEILLANCE</div>
+    <div class="h-sub">MINISTRY OF CIVIL ENGINEERING · CLASSIFIED ACCESS · SESSION ID: GOV-2024</div>
+  </div>
+  <div class="h-right">
+    <div class="live-dot">LIVE FEED</div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span id="themeIcon">☀️</span>
+      <span id="themeLabel">Light</span>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="classified">RESTRICTED — GOVERNMENT AUTHORIZED PERSONNEL ONLY</div>
+
+  <!-- ALERT BANNER -->
+  <div class="alert-banner" id="alertBanner">
+    <div class="ab-icon">🚨</div>
+    <div>
+      <div class="ab-text" id="alertText">CRITICAL ALERT</div>
+      <div class="ab-sub"  id="alertSub">Multiple bridges require immediate attention</div>
+    </div>
+  </div>
+
+  <!-- SUMMARY STATS -->
+  <div class="stat-row">
+    <div class="stat-card total">
+      <div class="stat-num" id="statTotal">—</div>
+      <div class="stat-label">Total Bridges Monitored</div>
+    </div>
+    <div class="stat-card good-s">
+      <div class="stat-num" id="statGood">—</div>
+      <div class="stat-label">Operational (GOOD)</div>
+    </div>
+    <div class="stat-card warn-s">
+      <div class="stat-num" id="statWarn">—</div>
+      <div class="stat-label">Seismic / EARTHQUAKE</div>
+    </div>
+    <div class="stat-card crit-s">
+      <div class="stat-num" id="statCrit">—</div>
+      <div class="stat-label">Fire / Extreme Alert</div>
+    </div>
+  </div>
+
+  <!-- FILTER + SEARCH -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" onclick="setFilter('ALL',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('GOOD',this)">✅ Good</button>
+    <button class="filter-btn" onclick="setFilter('EARTHQUAKE',this)">🌍 Earthquake</button>
+    <button class="filter-btn" onclick="setFilter('FIRE',this)">🔥 Fire</button>
+    <button class="filter-btn" onclick="setFilter('EXTREME',this)">🚨 Extreme</button>
+    <div class="sort-bar">
+      <span class="filter-label">Sort:</span>
+      <button class="sort-btn active" onclick="setSort('id',this)">ID</button>
+      <button class="sort-btn" onclick="setSort('shi',this)">SHI ↓</button>
+      <button class="sort-btn" onclick="setSort('risk',this)">Risk ↑</button>
+    </div>
+    <input class="search-box" id="searchBox" placeholder="Search bridge..." oninput="renderGrid()">
+  </div>
+
+  <!-- BRIDGE GRID -->
+  <div class="bridge-grid" id="bridgeGrid"></div>
+
+</div>
+
+<footer>
+  <div class="footer-seal">🛡 INFRASTRUCTURE GUARDIAN SYSTEM &nbsp;·&nbsp; GOV DASHBOARD v2.0</div>
+  <div>J.C. Bose University · YMCA · Real-Time Bridge Monitoring</div>
+  <div id="footerTime"></div>
+</footer>
+
+<script>
+// ── DATA GENERATION ──────────────────────────────────────────────────────────
+const STATE_CFG = {
+  GOOD:       {icon:'✅', risk:0},
+  EARTHQUAKE: {icon:'🌍', risk:1},
+  FIRE:       {icon:'🔥', risk:2},
+  EXTREME:    {icon:'🚨', risk:3},
+};
+
+function getState(v, f) {
+  if(v===0 && f===1) return 'GOOD';
+  if(v===1 && f===1) return 'EARTHQUAKE';
+  if(v===0 && f===0) return 'FIRE';
+  return 'EXTREME';
+}
+
+const NAMES = [
+  'Ganges Crossing','Yamuna Arch','Indus Link','Krishna Span',
+  'Godavari Bridge','Brahmaputra Rail','Cauvery Overpass','Narmada Highway',
+  'Mahanadi Chord','Tapti Suspension','Tapi Heritage','Beas Cantilever',
+  'Chenab Truss','Ravi Delta','Sutlej Valley','Jhelum Central',
+  'Hooghly Express','Sabarmati Link','Betwa Crossing','Mahi Arch',
+];
+
+function generateBridge(id) {
+  const sessions = [];
+  const scenario = Math.random();
+  let baseVib = scenario > .7 ? .5 : .2;
+  let baseFire = scenario > .85 ? .35 : .15;
+
+  for(let i = 0; i < 12; i++) {
+    const vib   = Math.random() < baseVib  ? 1 : 0;
+    const flame = Math.random() < baseFire ? 0 : 1;  // 0=fire in flame sensor
+    const state = getState(vib, flame);
+    const shi   = parseFloat((0.45 + Math.random() * 0.50).toFixed(3));
+    sessions.push({ id: 100 + i, vib, flame, state, shi });
+  }
+
+  const avgSHI   = sessions.reduce((a,b) => a + b.shi, 0) / sessions.length;
+  const lastState = sessions[sessions.length - 1].state;
+  const counts    = { GOOD:0, EARTHQUAKE:0, FIRE:0, EXTREME:0 };
+  sessions.forEach(s => counts[s.state]++);
+
+  return {
+    id, name: NAMES[(id - 1) % NAMES.length],
+    sessions, avgSHI: parseFloat(avgSHI.toFixed(3)),
+    lastState, counts,
+  };
+}
+
+// ── GENERATE DATA ─────────────────────────────────────────────────────────────
+const BRIDGES = Array.from({length: 12}, (_, i) => generateBridge(i + 1));
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentFilter = 'ALL';
+let currentSort   = 'id';
+let expandedCards = new Set();
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function setSort(s, btn) {
+  currentSort = s;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function shiColor(v) {
+  if(v >= 0.80) return 'var(--good)';
+  if(v >= 0.60) return 'var(--warn)';
+  return 'var(--danger)';
+}
+
+function renderGrid() {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+
+  let list = BRIDGES.filter(b => {
+    if(currentFilter !== 'ALL' && b.lastState !== currentFilter) return false;
+    if(query && !b.name.toLowerCase().includes(query) &&
+       !String(b.id).includes(query)) return false;
+    return true;
+  });
+
+  if(currentSort === 'shi')  list = [...list].sort((a,b) => a.avgSHI - b.avgSHI);
+  if(currentSort === 'risk') list = [...list].sort((a,b) =>
+    STATE_CFG[b.lastState].risk - STATE_CFG[a.lastState].risk);
+
+  const grid = document.getElementById('bridgeGrid');
+  grid.innerHTML = list.map((b, idx) => `
+    <div class="b-card" style="animation-delay:${idx * 0.04}s" id="card-${b.id}">
+
+      <div class="b-header">
+        <div>
+          <div class="b-num">BRIDGE · ${String(b.id).padStart(3,'0')}</div>
+          <div class="b-name">${b.name}</div>
+        </div>
+        <div class="b-status-pill pill-${b.lastState}">${STATE_CFG[b.lastState].icon} ${b.lastState}</div>
+      </div>
+
+      <div class="b-gauge">
+        <div class="g-row">
+          <span class="g-label">Avg Structural Health Index</span>
+          <span class="g-val" style="color:${shiColor(b.avgSHI)}">${b.avgSHI}</span>
+        </div>
+        <div class="g-track">
+          <div class="g-fill" style="width:${(b.avgSHI*100).toFixed(1)}%;background:${shiColor(b.avgSHI)}"></div>
+        </div>
+      </div>
+
+      <div class="b-breakdown">
+        <div class="bd-cell">
+          <div class="bd-count c-GOOD">${b.counts.GOOD}</div>
+          <div class="bd-lbl">Good</div>
+        </div>
+        <div class="bd-cell">
+          <div class="bd-count c-EARTHQUAKE">${b.counts.EARTHQUAKE}</div>
+          <div class="bd-lbl">Seismic</div>
+        </div>
+        <div class="bd-cell">
+          <div class="bd-count c-FIRE">${b.counts.FIRE}</div>
+          <div class="bd-lbl">Fire</div>
+        </div>
+        <div class="bd-cell">
+          <div class="bd-count c-EXTREME">${b.counts.EXTREME}</div>
+          <div class="bd-lbl">Extreme</div>
+        </div>
+      </div>
+
+      <div class="b-log-toggle" onclick="toggleLog(${b.id}, this)">
+        <span>Session Log (${b.sessions.length} entries)</span>
+        <span class="toggle-icon" id="ti-${b.id}">▶</span>
+      </div>
+      <div class="b-log ${expandedCards.has(b.id) ? 'open' : ''}" id="log-${b.id}">
+        <table>
+          <thead>
+            <tr><th>#</th><th>V</th><th>F</th><th>State</th><th>SHI</th></tr>
+          </thead>
+          <tbody>
+            ${b.sessions.map(s => `
+              <tr>
+                <td>${s.id}</td>
+                <td style="color:${s.vib?'var(--warn)':'var(--text3)'}">V=${s.vib}</td>
+                <td style="color:${s.flame===0?'var(--danger)':'var(--text3)'}">F=${s.flame}</td>
+                <td class="c-${s.state}">${STATE_CFG[s.state].icon} ${s.state}</td>
+                <td style="color:${shiColor(s.shi)}">${s.shi}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `).join('');
+
+  // Update toggle icons for expanded cards
+  expandedCards.forEach(id => {
+    const ti = document.getElementById(`ti-${id}`);
+    if(ti) ti.textContent = '▼';
+  });
+
+  updateStats();
+}
+
+function toggleLog(id, toggleEl) {
+  const log = document.getElementById(`log-${id}`);
+  const ti  = document.getElementById(`ti-${id}`);
+  if(expandedCards.has(id)){
+    expandedCards.delete(id);
+    log.classList.remove('open');
+    ti.textContent = '▶';
+  } else {
+    expandedCards.add(id);
+    log.classList.add('open');
+    ti.textContent = '▼';
+  }
+}
+
+function updateStats() {
+  const total = BRIDGES.length;
+  const good  = BRIDGES.filter(b => b.lastState === 'GOOD').length;
+  const warn  = BRIDGES.filter(b => b.lastState === 'EARTHQUAKE').length;
+  const crit  = BRIDGES.filter(b => b.lastState === 'FIRE' || b.lastState === 'EXTREME').length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statGood').textContent  = good;
+  document.getElementById('statWarn').textContent  = warn;
+  document.getElementById('statCrit').textContent  = crit;
+
+  const banner = document.getElementById('alertBanner');
+  if(crit > 0) {
+    banner.classList.add('show');
+    document.getElementById('alertText').textContent =
+      `🚨 ${crit} BRIDGE${crit>1?'S':''} IN CRITICAL STATE`;
+    document.getElementById('alertSub').textContent =
+      `Immediate inspection required — fire or extreme conditions detected`;
+  }
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent  = dark ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = dark ? 'Dark' : 'Light';
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('footerTime').textContent =
+    new Date().toLocaleTimeString('en-IN', {hour12:false}) + ' IST';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderGrid();
+</script>
+</body>
+</html>

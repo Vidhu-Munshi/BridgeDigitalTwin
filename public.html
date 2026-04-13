@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Public Bridge Safety — Infrastructure Guardian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#040810;
+  --bg2:#080f1e;
+  --surface:#0d1728;
+  --surface2:#111f35;
+  --edge:rgba(255,255,255,.07);
+  --edge2:rgba(255,255,255,.13);
+  --text:#dceeff;
+  --text2:#6888aa;
+  --text3:#334d68;
+  --acc:#3b8bff;
+  --acc2:#00d4ff;
+  --safe:#00e87a;
+  --safe-bg:rgba(0,232,122,.08);
+  --safe-border:rgba(0,232,122,.25);
+  --unsafe:#ff4040;
+  --unsafe-bg:rgba(255,64,64,.08);
+  --unsafe-border:rgba(255,64,64,.25);
+  --warn:#ffaa00;
+  --warn-bg:rgba(255,170,0,.08);
+  --ext:#cc44ff;
+  --shadow:0 8px 48px rgba(0,0,0,.55);
+  --header-bg:rgba(4,8,16,.93);
+  --card-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#eef3fc;
+  --bg2:#e2eaf8;
+  --surface:#ffffff;
+  --surface2:#f6f9ff;
+  --edge:rgba(0,0,0,.07);
+  --edge2:rgba(0,0,0,.14);
+  --text:#08182e;
+  --text2:#4a6480;
+  --text3:#9ab0c8;
+  --acc:#1a6ef0;
+  --acc2:#0090cc;
+  --safe:#009e50;
+  --safe-bg:rgba(0,158,80,.06);
+  --safe-border:rgba(0,158,80,.22);
+  --unsafe:#cc2020;
+  --unsafe-bg:rgba(204,32,32,.06);
+  --unsafe-border:rgba(204,32,32,.22);
+  --warn:#cc8800;
+  --warn-bg:rgba(204,136,0,.06);
+  --ext:#8822cc;
+  --shadow:0 4px 20px rgba(0,0,0,.1);
+  --header-bg:rgba(238,243,252,.95);
+  --card-shadow:0 2px 12px rgba(0,0,0,.08);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;transition:background .3s,color .3s;
+}
+
+/* ── HERO HEADER ── */
+.hero{
+  background:var(--header-bg);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--edge2);
+  padding:0 28px;
+  position:sticky;top:0;z-index:100;
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;gap:16px;padding:12px 0;
+}
+.hero-logo{
+  width:46px;height:46px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#1a60e0,#0090cc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;box-shadow:0 0 24px rgba(59,139,255,.3);
+}
+.hero-title{font-size:1.05rem;font-weight:800;color:var(--text);}
+.hero-sub{font-size:.6rem;color:var(--text2);font-family:'Space Mono',monospace;margin-top:2px;letter-spacing:.06em;}
+.hero-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+
+/* Theme toggle */
+.theme-btn{
+  background:var(--surface);border:1px solid var(--edge2);border-radius:20px;
+  padding:6px 16px;cursor:pointer;color:var(--text2);
+  font-size:.68rem;font-family:'Space Mono',monospace;
+  display:flex;align-items:center;gap:6px;transition:all .2s;
+}
+.theme-btn:hover{border-color:var(--acc);color:var(--acc);}
+
+.last-updated{
+  font-family:'Space Mono',monospace;font-size:.62rem;color:var(--text3);
+  display:flex;align-items:center;gap:5px;
+}
+.last-updated::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--safe);box-shadow:0 0 6px var(--safe);
+  animation:blink 1.6s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.wrap{max-width:1200px;margin:0 auto;padding:28px;}
+
+/* ── INTRO SECTION ── */
+.intro{
+  text-align:center;padding:32px 0 28px;
+}
+.intro-title{
+  font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:10px;
+}
+.intro-sub{font-size:.9rem;color:var(--text2);max-width:500px;margin:0 auto 24px;}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:32px;
+}
+.s-chip{
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--surface);border:1px solid var(--edge);border-radius:12px;
+  padding:14px 24px;min-width:110px;
+  transition:transform .2s,box-shadow .2s;
+}
+.s-chip:hover{transform:translateY(-2px);box-shadow:var(--card-shadow);}
+.s-num{font-size:2rem;font-weight:800;font-family:'Space Mono',monospace;line-height:1;}
+.s-lbl{font-size:.58rem;letter-spacing:.12em;color:var(--text3);margin-top:5px;text-transform:uppercase;}
+.s-chip.total  .s-num{color:var(--acc);}
+.s-chip.safe-c .s-num{color:var(--safe);}
+.s-chip.unsafe-c .s-num{color:var(--unsafe);}
+.s-chip.pct-c .s-num{color:var(--warn);}
+
+/* ── SAFETY METER ── */
+.safety-meter{
+  background:var(--surface);border:1px solid var(--edge);border-radius:16px;
+  padding:22px 28px;margin-bottom:24px;
+}
+.sm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.sm-label{font-size:.65rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;}
+.sm-pct{font-size:1.6rem;font-weight:800;font-family:'Space Mono',monospace;}
+.sm-track{height:10px;background:var(--bg2);border-radius:5px;overflow:hidden;}
+.sm-fill{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.sm-zones{display:flex;justify-content:space-between;margin-top:6px;font-size:.58rem;font-family:'Space Mono',monospace;color:var(--text3);}
+
+/* ── FILTER ── */
+.filter-row{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;
+}
+.f-label{font-size:.6rem;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;}
+.f-btn{
+  background:var(--surface);border:1px solid var(--edge);border-radius:6px;
+  padding:6px 14px;cursor:pointer;font-size:.7rem;color:var(--text2);
+  font-family:'Space Mono',monospace;transition:all .15s;
+}
+.f-btn:hover,.f-btn.on{border-color:var(--acc);color:var(--acc);background:rgba(59,139,255,.07);}
+.f-search{
+  margin-left:auto;background:var(--surface);border:1px solid var(--edge);
+  border-radius:6px;padding:7px 14px;color:var(--text);
+  font-family:'Space Mono',monospace;font-size:.7rem;outline:none;
+  width:170px;transition:border-color .2s;
+}
+.f-search:focus{border-color:var(--acc);}
+.f-search::placeholder{color:var(--text3);}
+
+/* ── BRIDGE TABLE ── */
+.table-card{
+  background:var(--surface);border:1px solid var(--edge);border-radius:16px;
+  overflow:hidden;margin-bottom:20px;
+}
+.table-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--edge);
+}
+.table-title{font-size:.65rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;}
+.table-count{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text3);}
+
+table{width:100%;border-collapse:collapse;}
+thead th{
+  padding:10px 16px;text-align:left;
+  font-size:.6rem;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;
+  border-bottom:1px solid var(--edge);background:var(--surface2);
+  cursor:pointer;user-select:none;transition:color .15s;
+}
+thead th:hover{color:var(--acc);}
+tbody tr{border-bottom:1px solid var(--edge);transition:background .1s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr:last-child{border-bottom:none;}
+td{padding:13px 16px;font-size:.82rem;}
+
+.bridge-id{font-family:'Space Mono',monospace;color:var(--text3);font-size:.7rem;}
+.bridge-name{font-weight:600;color:var(--text);}
+.bridge-region{font-size:.65rem;color:var(--text3);margin-top:2px;}
+
+/* Status badge */
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 13px;border-radius:20px;font-size:.68rem;font-weight:700;
+  letter-spacing:.06em;font-family:'Space Mono',monospace;
+}
+.sb-SAFE  {background:var(--safe-bg);color:var(--safe);border:1px solid var(--safe-border);}
+.sb-UNSAFE{background:var(--unsafe-bg);color:var(--unsafe);border:1px solid var(--unsafe-border);}
+
+/* SHI cell */
+.shi-cell{display:flex;align-items:center;gap:10px;}
+.shi-mini-track{width:60px;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.shi-mini-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.shi-num{font-family:'Space Mono',monospace;font-size:.78rem;}
+
+/* Travel advice */
+.advice{
+  display:inline-block;padding:3px 10px;border-radius:4px;
+  font-size:.62rem;font-weight:600;
+}
+.adv-yes{background:var(--safe-bg);color:var(--safe);}
+.adv-caution{background:var(--warn-bg);color:var(--warn);}
+.adv-no{background:var(--unsafe-bg);color:var(--unsafe);}
+
+/* ── ALERT CARDS ── */
+.alerts-section{margin-bottom:20px;}
+.alerts-title{font-size:.65rem;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;margin-bottom:12px;}
+.alert-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.a-card{
+  background:var(--unsafe-bg);border:1px solid var(--unsafe-border);
+  border-radius:10px;padding:14px 16px;
+  animation:pulse 2.5s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,64,64,0);}50%{box-shadow:0 0 0 5px rgba(255,64,64,.06);}}
+.a-card-name{font-weight:700;font-size:.85rem;color:var(--unsafe);}
+.a-card-id  {font-family:'Space Mono',monospace;font-size:.62rem;color:var(--text3);margin-bottom:4px;}
+.a-card-shi {font-family:'Space Mono',monospace;font-size:.75rem;color:var(--text2);margin-top:6px;}
+.a-card-msg {font-size:.68rem;color:var(--text2);margin-top:5px;}
+.no-alerts  {
+  background:var(--safe-bg);border:1px solid var(--safe-border);
+  border-radius:10px;padding:16px 20px;
+  font-size:.82rem;color:var(--safe);font-weight:600;text-align:center;
+}
+
+/* ── FAQ / INFO ── */
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.info-card{
+  background:var(--surface);border:1px solid var(--edge);border-radius:12px;
+  padding:18px 20px;
+}
+.ic-icon{font-size:1.5rem;margin-bottom:10px;}
+.ic-title{font-size:.78rem;font-weight:700;margin-bottom:6px;}
+.ic-text{font-size:.7rem;color:var(--text2);line-height:1.6;}
+
+footer{
+  border-top:1px solid var(--edge);padding:18px 28px;text-align:center;
+  font-family:'Space Mono',monospace;font-size:.6rem;color:var(--text3);
+  letter-spacing:.06em;max-width:1200px;margin:0 auto;
+}
+
+@media(max-width:768px){
+  .intro-title{font-size:1.5rem;}
+  .info-grid{grid-template-columns:1fr;}
+  .wrap{padding:16px;}
+  td,th{padding:8px 10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-logo">🌉</div>
+    <div>
+      <div class="hero-title">Public Bridge Safety Portal</div>
+      <div class="hero-sub">INFRASTRUCTURE GUARDIAN · OPEN DATA · REAL-TIME MONITORING</div>
+    </div>
+    <div class="hero-right">
+      <div class="last-updated" id="clock">LIVE</div>
+      <button class="theme-btn" onclick="toggleTheme()">
+        <span id="tIcon">☀️</span> <span id="tLabel">Light</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-title">Is Your Bridge Safe to Cross?</div>
+    <div class="intro-sub">Real-time structural health data from our IoT sensor network — transparent, clear, and always updated.</div>
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip" id="summaryStrip"></div>
+
+  <!-- SAFETY METER -->
+  <div class="safety-meter">
+    <div class="sm-head">
+      <div>
+        <div class="sm-label">Overall Network Safety</div>
+        <div style="font-size:.7rem;color:var(--text2);margin-top:3px;">% of bridges currently safe to cross</div>
+      </div>
+      <div class="sm-pct" id="safePct">—%</div>
+    </div>
+    <div class="sm-track">
+      <div class="sm-fill" id="safeBar" style="width:0%"></div>
+    </div>
+    <div class="sm-zones">
+      <span>0%</span><span>50% — Caution</span><span>80% — Good</span><span>100%</span>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="alerts-section">
+    <div class="alerts-title">⚠️ Active Alerts</div>
+    <div class="alert-cards" id="alertCards"></div>
+  </div>
+
+  <!-- FILTER ROW -->
+  <div class="filter-row">
+    <span class="f-label">Show:</span>
+    <button class="f-btn on" onclick="setFilter('ALL',this)">All</button>
+    <button class="f-btn" onclick="setFilter('SAFE',this)">✅ Safe</button>
+    <button class="f-btn" onclick="setFilter('UNSAFE',this)">⚠️ Unsafe</button>
+    <input class="f-search" id="fsearch" placeholder="Search bridge..." oninput="renderTable()">
+  </div>
+
+  <!-- BRIDGE TABLE -->
+  <div class="table-card">
+    <div class="table-head">
+      <div class="table-title">Bridge Network Status</div>
+      <div class="table-count" id="tableCount">—</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortBy('id')">Bridge</th>
+          <th onclick="sortBy('status')">Status</th>
+          <th onclick="sortBy('shi')">Avg SHI ↕</th>
+          <th>Travel Advice</th>
+          <th>Sessions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- INFO CARDS -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="ic-icon">📡</div>
+      <div class="ic-title">How We Monitor</div>
+      <div class="ic-text">Each bridge has piezoelectric, vibration (SW420), and flame sensors sending real-time data every 500ms to our cloud system.</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">🔢</div>
+      <div class="ic-title">What is SHI?</div>
+      <div class="ic-text">The Structural Health Index (0–1) is computed by our ML model. Above 0.80 = Healthy. 0.60–0.80 = Monitor. Below 0.60 = Concern.</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">🆘</div>
+      <div class="ic-title">Emergency</div>
+      <div class="ic-text">If a bridge shows UNSAFE, avoid crossing. Report unusual sounds or movements to local authorities immediately.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  🛡 INFRASTRUCTURE GUARDIAN · PUBLIC PORTAL &nbsp;·&nbsp;
+  J.C. Bose University of Science & Technology, YMCA &nbsp;·&nbsp;
+  Open data for public safety
+</footer>
+
+<script>
+// ── REGIONS ───────────────────────────────────────────────────────────────────
+const REGIONS = ['North Zone','South Zone','East Zone','West Zone','Central'];
+const NAMES   = [
+  'Ganges Crossing','Yamuna Arch','Indus Link','Krishna Span','Godavari Bridge',
+  'Brahmaputra Rail','Cauvery Overpass','Narmada Highway','Mahanadi Chord',
+  'Tapti Heritage','Beas Cantilever','Hooghly Express','Sabarmati Link',
+  'Betwa Crossing','Mahi Arch','Chenab Truss','Ravi Delta','Sutlej Valley',
+];
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
+function generateBridge(id) {
+  const logs = [];
+  const riskBias = Math.random();
+  for(let i = 0; i < 15; i++) {
+    const shi = parseFloat((0.45 + Math.random() * .50).toFixed(3));
+    logs.push({ shi });
+  }
+  const avg  = logs.reduce((a,b) => a + b.shi, 0) / logs.length;
+  const avgR = parseFloat(avg.toFixed(3));
+  return {
+    id, name: NAMES[(id-1) % NAMES.length],
+    region: REGIONS[(id-1) % REGIONS.length],
+    avgSHI: avgR,
+    status: avgR >= 0.70 ? 'SAFE' : 'UNSAFE',
+    sessions: logs.length,
+  };
+}
+
+const BRIDGES = Array.from({length: 15}, (_, i) => generateBridge(i + 1));
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let filter = 'ALL';
+let sortKey = 'id';
+let sortAsc = true;
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTable();
+}
+
+function sortBy(key) {
+  if(sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = true; }
+  renderTable();
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────────────────────
+function renderSummary() {
+  const total  = BRIDGES.length;
+  const safe   = BRIDGES.filter(b => b.status === 'SAFE').length;
+  const unsafe = total - safe;
+  const pct    = Math.round(safe / total * 100);
+
+  document.getElementById('summaryStrip').innerHTML = `
+    <div class="s-chip total">  <div class="s-num">${total}</div><div class="s-lbl">Total Bridges</div></div>
+    <div class="s-chip safe-c"> <div class="s-num">${safe}</div><div class="s-lbl">Safe to Cross</div></div>
+    <div class="s-chip unsafe-c"><div class="s-num">${unsafe}</div><div class="s-lbl">Under Alert</div></div>
+    <div class="s-chip pct-c">  <div class="s-num">${pct}%</div><div class="s-lbl">Safety Rate</div></div>
+  `;
+
+  document.getElementById('safePct').textContent = `${pct}%`;
+  const bar = document.getElementById('safeBar');
+  setTimeout(() => {
+    bar.style.width = `${pct}%`;
+    bar.style.background = pct >= 80
+      ? 'linear-gradient(90deg,var(--safe),#00ff99)'
+      : pct >= 50
+      ? 'linear-gradient(90deg,var(--warn),#ffcc44)'
+      : 'linear-gradient(90deg,var(--unsafe),#ff7070)';
+  }, 100);
+
+  // Alert cards
+  const unsafeBridges = BRIDGES.filter(b => b.status === 'UNSAFE');
+  const ac = document.getElementById('alertCards');
+  if(unsafeBridges.length === 0){
+    ac.innerHTML = `<div class="no-alerts">✅ All bridges are currently operating safely. No active alerts.</div>`;
+  } else {
+    ac.innerHTML = unsafeBridges.map(b => `
+      <div class="a-card">
+        <div class="a-card-id">BRIDGE-${String(b.id).padStart(3,'0')} · ${b.region}</div>
+        <div class="a-card-name">⚠️ ${b.name}</div>
+        <div class="a-card-shi">SHI: ${b.avgSHI}</div>
+        <div class="a-card-msg">Avoid crossing — structural health below safe threshold</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+function shiColor(v) {
+  if(v >= 0.80) return 'var(--safe)';
+  if(v >= 0.60) return 'var(--warn)';
+  return 'var(--unsafe)';
+}
+
+function travelAdvice(b) {
+  if(b.status === 'SAFE' && b.avgSHI >= 0.80)
+    return `<span class="advice adv-yes">✅ Safe to Cross</span>`;
+  if(b.status === 'SAFE')
+    return `<span class="advice adv-caution">⚠️ Use Caution</span>`;
+  return `<span class="advice adv-no">🚫 Avoid Crossing</span>`;
+}
+
+function renderTable() {
+  const query = document.getElementById('fsearch').value.toLowerCase();
+
+  let list = BRIDGES.filter(b => {
+    if(filter !== 'ALL' && b.status !== filter) return false;
+    if(query && !b.name.toLowerCase().includes(query) &&
+       !b.region.toLowerCase().includes(query) && !String(b.id).includes(query)) return false;
+    return true;
+  });
+
+  list = list.sort((a,b) => {
+    let av, bv;
+    if(sortKey === 'shi')    { av = a.avgSHI; bv = b.avgSHI; }
+    else if(sortKey==='status'){ av = a.status; bv = b.status; }
+    else                     { av = a.id; bv = b.id; }
+    return sortAsc ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
+
+  document.getElementById('tableCount').textContent = `${list.length} bridges`;
+
+  document.getElementById('tableBody').innerHTML = list.map((b, idx) => `
+    <tr style="animation:fadeIn .3s ease ${idx*.03}s both">
+      <td>
+        <div class="bridge-id">BRIDGE-${String(b.id).padStart(3,'0')}</div>
+        <div class="bridge-name">${b.name}</div>
+        <div class="bridge-region">${b.region}</div>
+      </td>
+      <td>
+        <span class="status-badge sb-${b.status}">
+          ${b.status === 'SAFE' ? '✅' : '⚠️'} ${b.status}
+        </span>
+      </td>
+      <td>
+        <div class="shi-cell">
+          <div class="shi-mini-track">
+            <div class="shi-mini-fill" style="width:${(b.avgSHI*100).toFixed(0)}%;background:${shiColor(b.avgSHI)}"></div>
+          </div>
+          <span class="shi-num" style="color:${shiColor(b.avgSHI)}">${b.avgSHI}</span>
+        </div>
+      </td>
+      <td>${travelAdvice(b)}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text3)">${b.sessions} logs</td>
+    </tr>
+  `).join('');
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('tIcon').textContent  = dark ? '🌙' : '☀️';
+  document.getElementById('tLabel').textContent = dark ? 'Dark' : 'Light';
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────────
+function updateClock(){
+  document.getElementById('clock').textContent =
+    'UPDATED ' + new Date().toLocaleTimeString('en-IN',{hour12:false});
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderSummary();
+renderTable();
+</script>
+</body>
+</html>
