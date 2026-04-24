@@ -10,9 +10,9 @@ Sensors:
     Flame Sensor   → Digital (D3) — 0=fire!, 1=clear
 
 4-State Logic  (V=Vibration, F=Flame):
-    V=0 F=1  → GOOD       — all clear
+    V=0 F=0  → GOOD       — all clear
     V=1 F=1  → EARTHQUAKE — vibration detected, no fire
-    V=0 F=0  → FIRE       — fire detected, no vibration
+    V=0 F=1  → FIRE       — fire detected, no vibration
     V=1 F=0  → EXTREME    — both vibration and fire
 
 Piezo Health (SHI):
